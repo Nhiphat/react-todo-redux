@@ -1,9 +1,81 @@
 import React from 'react';
-import logo from './logo.svg';
+import './App.css'
 import TaskForm from './components/TaskForm'
+import Control from './components/Control'
+import TaskList from './components/TaskList'
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tasks: [],
+      isDisplayForm: false
+    }
+  }
+  componentWillMount(){
+    console.log(localStorage.getItem('tasks'));
+    
+    if(localStorage && localStorage.getItem('tasks')){
+      var tasks = JSON.parse(localStorage.getItem('tasks'))
+      this.setState({
+        tasks: tasks
+      })
+
+      
+    }
+    
+  }
+  onToggleForm = () =>{
+    this.setState({
+      isDisplayForm : !this.isDisplayForm
+    })
+  }
+  onCloseForm = () =>{
+    this.setState({
+      isDisplayForm : false
+    })
+    
+  }
+  onSubmit=(data)=>{
+    var tasks = this.state.tasks;
+    var task = {
+      id:Math.floor(Math.random() * 100000000),
+      name : data.name,
+      status: data.status
+    }
+    tasks.push(task)
+    this.setState({
+      tasks:tasks
+    })
+    localStorage.setItem('tasks',JSON.stringify(tasks))
+  }
+  onGenerateDta =()=>{
+    var tasks = [
+      {
+        id : 1,
+        name: 'Hoc lap trinh',
+        status: true
+      },
+      {
+        id : 2,
+        name: 'Di choi',
+        status: true
+      },
+      {
+        id : 3,
+        name: 'Di Xem Phim',
+        status: false
+      }
+    ]
+    this.setState({
+      tasks: tasks
+    })
+    localStorage.setItem('tasks',JSON.stringify(tasks))
+    
+  }
   render() {
+    var {tasks,isDisplayForm} =this.state;
+    var elmTaskForm = isDisplayForm ? <TaskForm onSubmit={this.onSubmit} onCloseForm = {this.onCloseForm}></TaskForm>:''
     return (
       <div class="container">
         <div class="text-center">
@@ -11,97 +83,27 @@ class App extends React.Component {
           <hr />
         </div>
         <div class="row">
-          <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <TaskForm></TaskForm>
+          <div class={isDisplayForm? "col-xs-4 col-sm-4 col-md-4 col-lg-4": ""}>
+            {elmTaskForm}
           </div>
-          <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-            <button type="button" class="btn btn-primary">
+          <div class={isDisplayForm? "col-xs-8 col-sm-8 col-md-8 col-lg-8":"col-xs-12 col-sm-12 col-md-12 col-lg-12"}>
+            <button 
+            type="button" 
+            class="btn btn-primary"
+            onClick={this.onToggleForm}
+            >
               <span class="fa fa-plus mr-5"></span>Thêm Công Việc
                 </button>
-            <div class="row mt-20">
-              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Nhập từ khóa..." />
-                  <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button">
-                      <span class="fa fa-search mr-5"></span>Tìm
-                            </button>
-                  </span>
-                </div>
-              </div>
-              <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                <div class="dropdown">
-                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    Sắp Xếp <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li>
-                      <a role="button">
-                        <span class="fa fa-sort-alpha-asc pr-5">
-                          Tên A-Z
-                                                </span>
-                      </a>
-                    </li>
-                    <li>
-                      <a role="button">
-                        <span class="fa fa-sort-alpha-desc pr-5">
-                          Tên Z-A
-                                                </span>
-                      </a>
-                    </li>
-                    <li role="separator" class="divider"></li>
-                    <li><a role="button">Trạng Thái Kích Hoạt</a></li>
-                    <li><a role="button">Trạng Thái Ẩn</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <button 
+            type="button" 
+            class="btn btn-danger ml-5" 
+            onClick = {this.onGenerateDta}>
+              <span class="fa fa-plus mr-5"></span>Generate Data
+                </button>
+            <Control></Control>
             <div class="row mt-15">
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <table class="table table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <th class="text-center">STT</th>
-                      <th class="text-center">Tên</th>
-                      <th class="text-center">Trạng Thái</th>
-                      <th class="text-center">Hành Động</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <input type="text" class="form-control" />
-                      </td>
-                      <td>
-                        <select class="form-control">
-                          <option value="-1">Tất Cả</option>
-                          <option value="0">Ẩn</option>
-                          <option value="1">Kích Hoạt</option>
-                        </select>
-                      </td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>1</td>
-                      <td>Học lập trình</td>
-                      <td class="text-center">
-                        <span class="label label-success">
-                          Kích Hoạt
-                                                </span>
-                      </td>
-                      <td class="text-center">
-                        <button type="button" class="btn btn-warning">
-                          <span class="fa fa-pencil mr-5"></span>Sửa
-                                        </button>
-                        &nbsp;
-                                        <button type="button" class="btn btn-danger">
-                          <span class="fa fa-trash mr-5"></span>Xóa
-                                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <TaskList tasks = {tasks}></TaskList>
               </div>
             </div>
           </div>
