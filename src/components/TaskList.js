@@ -3,10 +3,13 @@ import TaskItem from './TaskItem'
 
 
 class TaskList extends React.Component {
+    constructor(props){
+        super(props)
+    }
   render() {
       var tasks = this.props.tasks
       var elmTasks = tasks.map((task,index)=>{
-          return <TaskItem key={tasks.id} index = {index} task = {task}></TaskItem>
+          return <TaskItem key={tasks.id} index = {index} task = {task} onUpdateStatus={this.props.onUpdateStatus} onDelete={this.props.onDelete} onUpdate={this.props.onUpdate}></TaskItem>
       })
     return (
         <table class="table table-bordered table-hover">

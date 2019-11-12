@@ -4,10 +4,29 @@ class TaskForm extends React.Component {
     constructor(props){
         super(props)
         this.state ={
+            id:'',
             name:'',
             status:false
         }
         
+    }
+    componentWillMount(){
+        if(this.props.task){
+            this.setState({
+                id:this.props.task.id,
+                name: this.props.task.name,
+                status:this.props.task.status
+            })
+        }
+    }
+    componentWillReceiveProps(nextprops){
+        if(nextprops&& nextprops.task){
+            this.setState({
+                id:nextprops.task.id,
+                name: nextprops.task.name,
+                status:nextprops.task.status
+            })
+        }
     }
     onCloseForm=()=>{
         this.props.onCloseForm();
@@ -26,13 +45,23 @@ class TaskForm extends React.Component {
     onSubmit = (event)=>{
         event.preventDefault();
         this.props.onSubmit(this.state)
+        this.onClear();
+        this.onCloseForm();
         
     }
+    onClear = ()=>{
+        this.setState({
+            name:'',
+            status:false 
+        }
+        )
+    }
     render() {
+        var id = this.state.id;
         return (
             <div class="panel panel-warning">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Thêm Công Việc
+                    <h3 class="panel-title">{id===''?"Thêm Công Việc":"Cap nhat Cong Viec"}
             <span class="fa fa-times-circle text-right" onClick ={this.onCloseForm}></span>
                     </h3>
                 </div>
@@ -62,7 +91,11 @@ class TaskForm extends React.Component {
                         <br />
                         <div class="text-center">
                             <button type="submit" class="btn btn-warning">Thêm</button>&nbsp;
-                    <button type="submit" class="btn btn-danger">Hủy Bỏ</button>
+                            <button 
+                            type="button" 
+                            class="btn btn-danger"
+                            onClick={this.onClear}
+                            >Hủy Bỏ</button>
                         </div>
                     </form>
                 </div>
