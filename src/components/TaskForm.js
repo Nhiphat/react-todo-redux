@@ -26,6 +26,12 @@ class TaskForm extends React.Component {
                 name: nextprops.task.name,
                 status:nextprops.task.status
             })
+        }else{
+            this.setState({
+                id:'',
+                name: '',
+                status: false
+            })
         }
     }
     onCloseForm=()=>{

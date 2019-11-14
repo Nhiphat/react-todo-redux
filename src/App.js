@@ -9,7 +9,17 @@ class App extends React.Component {
     super(props);
     this.state = {
       tasks: [],
-      isDisplayForm: false
+      isDisplayForm: false,
+      taskEdidting: null,
+      filter:{
+        name:'',
+        status: -1
+      },
+      keyword:'',
+      sort:{
+        by:'',
+        value: 1
+      }
     }
   }
   componentWillMount(){
@@ -24,9 +34,18 @@ class App extends React.Component {
   }
   
   onToggleForm = () =>{
-    this.setState({
-      isDisplayForm : !this.isDisplayForm
-    })
+    if(this.state.isDisplayForm && this.state.taskEdidting){
+      this.setState({
+        isDisplayForm : true,
+        taskEdidting: null
+      })
+    }else{
+      this.setState({
+        isDisplayForm : !this.isDisplayForm,
+        taskEdidting: null
+      })
+    }
+    
   }
   onCloseForm = () =>{
     this.setState({
@@ -48,6 +67,7 @@ class App extends React.Component {
         name : data.name,
         status: data.status
       }
+      tasks.push(task)
     }
     else{
       var index = this.findIndex(data.id);
@@ -58,7 +78,8 @@ class App extends React.Component {
       tasks:tasks,
       taskEdidting : null
     })
-    localStorage.setItem('tasks',JSON.stringify(tasks))
+    localStorage.setItem('tasks',JSON.stringify(tasks)) 
+    this.onToggleForm();
   }
   onGenerateDta =()=>{
     var tasks = [
@@ -130,9 +151,79 @@ class App extends React.Component {
     }
     this.onShowForm();
   }
+  onFilter = (filterName, filterStatus)=>{
+    filterStatus = parseInt(filterStatus,10);
+    this.setState({
+      filter:{
+        name: filterName.toLowerCase(),
+        status: filterStatus
+      }
+    })
+    
+  }
+  onSearch = (keyword)=>{
+    this.setState({
+      keyword:keyword
+    })
+  }
+  onSort =(sortBy,sortValue)=>{
+    console.log(sortBy,sortValue);
+    
+    this.setState({
+      sort:{
+        by:sortBy,
+        value: sortValue
+      }
+    })
+    
+  }
   render() {
-    var {tasks,isDisplayForm,taskEdidting} =this.state;
+    var {tasks,isDisplayForm,taskEdidting, keyword,sort} =this.state;
     var elmTaskForm = isDisplayForm ? <TaskForm onSubmit={this.onSubmit} onCloseForm = {this.onCloseForm} task ={taskEdidting}></TaskForm>:''
+    var filter = this.state.filter;
+    if(filter){
+      if(filter.name){
+        tasks = tasks.filter((task)=>{
+          return task.name.toLowerCase().indexOf(filter.name) !== -1;
+        })
+      }
+      tasks = tasks.filter((task)=>{
+        if(filter.status === -1){
+          return task;
+        }
+        else{
+          return task.status === (filter.status === 1 ? true: false)
+        }
+      })
+    }
+    if(keyword){
+      tasks = tasks.filter((task)=>{
+        return task.name.toLowerCase().indexOf(keyword) !== -1;
+      })
+    }
+    if(sort.by === 'name'){
+      console.log(tasks);
+      
+      if(sort.value === 1){
+        tasks.sort((a,b)=>{
+          return a.name - b.name;
+        })
+      }else{
+        tasks.sort((a,b)=>{
+          return (b.name - a.name);
+        })
+      }
+    }else {
+      if(sort.value === 1){
+        tasks.sort((a,b)=>{
+          return b.status - a.status;
+        })
+      }else{
+        tasks.sort((a,b)=>{
+          return a.status - b.status;
+        })
+      }
+    }
     return (
       <div class="container">
         <div class="text-center">
@@ -147,7 +238,7 @@ class App extends React.Component {
             <button 
             type="button" 
             class="btn btn-primary"
-            onClick={this.onToggleForm}
+            onClick={this.onSubmit}
             >
               <span class="fa fa-plus mr-5"></span>Thêm Công Việc
                 </button>
@@ -157,10 +248,10 @@ class App extends React.Component {
             onClick = {this.onGenerateDta}>
               <span class="fa fa-plus mr-5"></span>Generate Data
                 </button>
-            <Control></Control>
+            <Control onSearch ={this.onSearch} onSort ={this.onSort}></Control>
             <div class="row mt-15">
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <TaskList tasks = {tasks} onUpdateStatus={this.onUpdateStatus} onDelete={this.onDelete} onUpdate ={this.onUpdate}></TaskList>
+                <TaskList tasks = {tasks} onUpdateStatus={this.onUpdateStatus} onDelete={this.onDelete} onUpdate ={this.onUpdate} onFilter = {this.onFilter}></TaskList>
               </div>
             </div>
           </div>
